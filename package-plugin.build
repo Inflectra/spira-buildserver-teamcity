@@ -29,7 +29,7 @@
 	
 	<target name="zipup" description="Zips up the plugin">
 		<echo message="Zipping up entire plugin" />
-		<zip zipfile="Spira.zip" verbose="true" comment="TeamCity Plugin for SpiraTest">
+		<zip zipfile="TeamCity-Spira-Plugin.zip" verbose="true" comment="TeamCity Plugin for SpiraTest">
 			<fileset>
 				<include name="teamcity-plugin.xml" />
 			</fileset>
@@ -41,7 +41,7 @@
 	
 	<target name="deploy" description="deploy to teamcity">
 		<echo message="deploy to teamcity" />
-		<copy file="Spira.zip" tofile="${teamcity.plugins}\Spira.zip" />
+		<copy file="TeamCity-Spira-Plugin.zip" tofile="${teamcity.plugins}\TeamCity-Spira-Plugin.zip" />
 		<exec program="net" verbose="true">
 			<arg value="stop" />
 			<arg value="TeamCity" />
