@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans default-autowire="constructor">
+   <!--<bean class="com.inflectra.spiratest.plugins.teamcity.Initialization"/>-->
+  <bean id="spiraNotifier" class="com.inflectra.spiratest.plugins.teamcity.SpiraNotification"/>
+  <bean class="com.inflectra.spiratest.plugins.SpiraProjectTab"/>
+  <bean class="com.inflectra.spiratest.plugins.SpiraGlobalConfigPage" init-method="register"/>
+</beans>

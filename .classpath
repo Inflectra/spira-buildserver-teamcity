@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="sample/" kind="src" path="src"/>
+	<classpathentry kind="src" path="META-INF"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/fluent-hc-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/httpclient-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/httpclient-cache-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/httpclient-win-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/httpcore-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/httpmime-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/jna-4.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/jna-platform-4.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/devPackage/common-api.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/devPackage/server-common-api.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/devPackage/server-api.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/devPackage/src/openApi-source.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/buildAgent/lib/openapi.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/Apache Libraries/Loggin/log4j-1.2.17/apache-log4j-1.2.17/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/libraries/javax libs/jstl-1.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/libraries/javax libs/servlet-api-2.2.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/lib/jsp-api.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/webapps/ROOT/WEB-INF/lib/spring.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/webapps/ROOT/WEB-INF/lib/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="C:/TeamCity/webapps/ROOT/WEB-INF/lib/jdom.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bruno.gruber/workspace/libraries/ImportExport/annotations-7.0.3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

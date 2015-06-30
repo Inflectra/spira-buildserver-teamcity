@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<project name="TeamCity Plugin" default="full">
+	<property name="java.bin" value="C:\Program Files\Java\jdk1.8.0_45\bin" />
+	<property name="jar.filename" value="spira-teamcity-plugin.jar" />
+	<property name="teamcity.plugins" value="C:\ProgramData\JetBrains\TeamCity\plugins" />
+	
+	<target name="makejar" description="Packages the binaries into a JAR archive">
+		<echo message="Making the JAR file"/>
+		<exec program="${java.bin}\jar" verbose="true" workingdir="${nant.project.basedir}\bin">
+			<arg value="cfv" />
+			<arg value="${nant.project.basedir}\${jar.filename}" />
+			<arg value="com\inflectra\spiratest\plugins\*.class" />
+			<arg value="com\inflectra\spiratest\plugins\teamcity\*.class" />
+			<arg value="com\inflectra\spiratest\plugins\soap\*.class" />
+		</exec>
+		<exec program="${java.bin}\jar" verbose="true" workingdir="${nant.project.basedir}">
+			<arg value="ufv" />
+			<arg value="${nant.project.basedir}\${jar.filename}" />
+			<arg value="META-INF\*.xml" />
+			<arg value="buildServerResources\*.jsp" />
+		</exec>
+		
+		<echo message="Viewing the JAR file " />
+		<exec program="${java.bin}\jar" verbose="true">
+			<arg value="tf" />
+			<arg value="${jar.filename}" />
+		</exec>
+	</target>
+	
+	<target name="zipup" description="Zips up the plugin">
+		<echo message="Zipping up entire plugin" />
+		<zip zipfile="Spira.zip" verbose="true" comment="TeamCity Plugin for SpiraTest">
+			<fileset>
+				<include name="teamcity-plugin.xml" />
+			</fileset>
+			<fileset prefix="server">
+				<include name="${jar.filename}" />
+			</fileset>
+		</zip>
+	</target>
+	
+	<target name="deploy" description="deploy to teamcity">
+		<echo message="deploy to teamcity" />
+		<copy file="Spira.zip" tofile="${teamcity.plugins}\Spira.zip" />
+		<exec program="net" verbose="true">
+			<arg value="stop" />
+			<arg value="TeamCity" />
+		</exec>
+		<exec program="net" verbose="true">
+			<arg value="start" />
+			<arg value="TeamCity" />
+		</exec>
+	</target>
+	
+	<target name="full" description="Builds the whole plugin and zips it up" depends="makejar,zipup,deploy">
+	</target>
+	
+</project>

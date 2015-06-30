@@ -1,0 +1,2 @@
+cd "C:\Users\bruno.gruber\workspace\RestInterface"
+"C:\Program Files\Java\jdk1.8.0_45\bin\jar.exe" cfv spira-teamcity-plugin.jar "bin\com\inflectra\spiratest\plugins\*.class" "bin\com\inflectra\spiratest\plugins\soap\*.class" "bin\com\inflectra\spiratest\plugins\teamcity\*.class"
