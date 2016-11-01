@@ -1,0 +1,19 @@
+We have an on-premise installation of TeamCity on:
+
+VM-WIN2012
+
+You need to start the TeamCity service in Windows services, then access it using:
+
+http://vm-win2012:88/
+
+The login is:
+
+Login: teamcity
+Password: 
+
+
+The Eclipse Java environment is here:
+
+C:\Users\bruno.gruber\Documents\eclipse\eclipse
+
+(that is where Eclipse is actually installed)
