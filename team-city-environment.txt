@@ -9,7 +9,7 @@ http://vm-win2012:88/
 The login is:
 
 Login: teamcity
-Password: 
+Password: teamcity
 
 
 The Eclipse Java environment is here:
@@ -17,3 +17,5 @@ The Eclipse Java environment is here:
 C:\Users\bruno.gruber\Documents\eclipse\eclipse
 
 (that is where Eclipse is actually installed)
+
+If you ever forget the TeamCity admin password, use this - http://javahonk.com/teamcity-forgotten-admin-password/
