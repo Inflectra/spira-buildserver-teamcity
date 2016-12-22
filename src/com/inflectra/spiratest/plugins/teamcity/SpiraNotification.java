@@ -54,6 +54,7 @@ private static final String SPIRA_PASSWORD = "SpriraPassw";
 
 static String Spira_dir = System.getenv("TEAMCITY_DATA_PATH"); 
 
+private static final String GLOBAL_CONFIG_PATH = (Spira_dir + "\\config\\SpiraGlobalOutput.txt");
 private static final String LOCAL_CONFIG_PATH =  (Spira_dir + "\\config\\SpiraOutput.txt");
 
 String TcProjectID, spiraURL, spiraUsername, spiraPassword, spiraProjectVers;
@@ -62,22 +63,15 @@ int flag =0;
 
 public SpiraNotification(NotificatorRegistry notificatorRegistry) {
 	
-	ArrayList<UserPropertyInfo> userProps = new ArrayList<UserPropertyInfo>();
-	
-	//Properties displayed at My Settings & Tools - Replaced by Global Configurations
-	
- /* userProps.add(new UserPropertyInfo(SPIRA_URL, "SpiraTeam URL"));
-    userProps.add(new UserPropertyInfo(SPIRA_USERNAME, "Username"));
-    userProps.add(new UserPropertyInfo(SPIRA_PASSWORD, "Password"));
-    userProps.add(new UserPropertyInfo(SPIRA_PROJECT_ID, "Project ID"));
-    userProps.add(new UserPropertyInfo(SPIRA_PROJECT_VERS, "Version #"));*/
-	
+	ArrayList<UserPropertyInfo> userProps = new ArrayList<UserPropertyInfo>();	
     notificatorRegistry.register(this, userProps);
 }
 
 //Takes a string from file and makes it a list 
 public ArrayList<String> CreateProjectList(String path){
 	
+	Loggers.SERVER.info("SpiraTeam Plugin :: Entering CreateProjectList");
+
 	  flag = 0; //watching for exceptions (usually file not found)
 	  String line = null;
 	  ArrayList<String> ProjectList = new ArrayList<String>();
@@ -107,41 +101,80 @@ public ArrayList<String> CreateProjectList(String path){
 // Gets all the necessary info that will be send in a Notification Event
 public void getInfo(SUser user) throws NumberFormatException, IOException {
 	
-	spiraURL = user.getPropertyValue(new NotificatorPropertyKey(TYPE, SPIRA_URL));
-	spiraUsername = user.getPropertyValue(new NotificatorPropertyKey(TYPE, SPIRA_USERNAME));
-	spiraPassword = user.getPropertyValue(new NotificatorPropertyKey(TYPE, SPIRA_PASSWORD));
+	Loggers.SERVER.info("SpiraTeam Plugin :: Entering getInfo for user: '" + user.getUsername() + "'");
 		
-	ArrayList<String> ProjectList = CreateProjectList(LOCAL_CONFIG_PATH);
-        
-    if (flag ==1){
-	    Loggers.SERVER.info(":: SpiraTeam Plugin :: Project information could not be loaded from file. Action: Project fields set to 0");
-	    ProjectID = 0;
-	    spiraProjectVers = "0.0.0";	
+	//Read the Spira global configuration from the file
+	String line = null; 
+	try
+	{
+	  FileReader reader = new FileReader(GLOBAL_CONFIG_PATH); 
+	  BufferedReader reading = new BufferedReader(reader);  
+	  StringTokenizer st = null;
+	  while ((line = reading.readLine()) != null)
+	  {  
+        st = new StringTokenizer(line, "|*|");  
+        String data = null;  
+        while (st.hasMoreTokens())
+        {  
+           data = st.nextToken();  
+           spiraURL = data;
+           data = st.nextToken();  
+           spiraUsername = data;  
+           data = st.nextToken();  
+           spiraPassword = data; 
+        }  
+	  }  
+	  reading.close();  
+	  reader.close();
 	}
-	else{
-		for (int n=0; n<=ProjectList.size(); n=n+1) {
-	 	     String piece = ProjectList.get(n);
-	             if (piece.equals(TcProjectID)){
-	            	 try {
-	            		 ProjectID = Integer.parseInt(ProjectList.get(n+1)); 
-	            	 }catch (NumberFormatException e){
-	            			Loggers.SERVER.info(":: SpiraTeam Plugin :: Bad projectID format from file. Action: projectID changed to 0");
-	            			ProjectID = 0;
-	            			e.printStackTrace();	
-	            	 }	
-	            	 spiraProjectVers = ProjectList.get(n+2);
-	            	 break; 	
-	             }            
-	             Loggers.SERVER.info(":: SpiraTeam Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
-	             ProjectID = 0;
-	             spiraProjectVers = "0.0.0";
-	    }
+	catch (IOException e)
+	{
+		//Log the error and exit
+		Loggers.SERVER.error("Unable to access Spira global configuration at path '" + GLOBAL_CONFIG_PATH + "'");
+		Loggers.SERVER.error(e);
+		return;
+	} 
+		
+	if (spiraURL != null && !spiraURL.isEmpty() && spiraUsername != null && !spiraUsername.isEmpty())
+	{
+		Loggers.SERVER.info("SpiraTeam Plugin :: got Spira URL = " + spiraURL + " configured for TeamCity user '" + user.getUsername() + "'");
+		
+		ArrayList<String> ProjectList = CreateProjectList(LOCAL_CONFIG_PATH);
+	        
+	    if (flag ==1){
+		    Loggers.SERVER.warn(":: SpiraTeam Plugin :: Project information could not be loaded from file '" + LOCAL_CONFIG_PATH + "'. Action: Project fields set to 0");
+		    ProjectID = 0;
+		    spiraProjectVers = "0.0.0";	
+		}
+		else
+		{
+			for (int n=0; n<=ProjectList.size(); n=n+1) {
+		 	     String piece = ProjectList.get(n);
+		             if (piece.equals(TcProjectID)){
+		            	 try {
+		            		 ProjectID = Integer.parseInt(ProjectList.get(n+1)); 
+		            	 }catch (NumberFormatException e){
+		            			Loggers.SERVER.error(":: SpiraTeam Plugin :: Bad projectID format from file. Action: projectID changed to 0");
+		            			ProjectID = 0;
+		            			e.printStackTrace();	
+		            	 }	
+		            	 spiraProjectVers = ProjectList.get(n+2);
+		            	 break; 	
+		             }            
+		             Loggers.SERVER.info(":: SpiraTeam Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
+		             ProjectID = 0;
+		             spiraProjectVers = "0.0.0";
+		    }
+		}
 	}
+	Loggers.SERVER.info("SpiraTeam Plugin :: Exiting getInfo");
 }
 
 // Set connection with SpiraTeam Server and Send a notification
 public void setSendInfo(SRunningBuild runningBuild){
 	
+	Loggers.SERVER.info("SpiraTeam Plugin :: Entering setSendInfo");
+
 	List<Integer> incidentIds = new ArrayList<Integer>();
 	List<String> revisions = new ArrayList<String>();
 	SpiraImportExport spiraClient = new SpiraImportExport();
@@ -149,6 +182,9 @@ public void setSendInfo(SRunningBuild runningBuild){
 	spiraClient.setUrl(spiraURL);	
 	spiraClient.setUserName(spiraUsername);
 	spiraClient.setPassword(spiraPassword);
+	
+	Loggers.SERVER.info("SpiraTeam Plugin :: Sending Notification to Spira at URL: " + spiraURL);
+
 	
 	Date date = runningBuild.getStartDate();
 	String name = runningBuild.getFullName() + " #" + runningBuild.getBuildNumber() ;
@@ -173,6 +209,7 @@ public void setSendInfo(SRunningBuild runningBuild){
 	try {
 		spiraClient.testConnection();
 	} catch (Exception e){
+		Loggers.SERVER.error(e);
 		e.printStackTrace();
 	}
 	
@@ -182,14 +219,17 @@ public void setSendInfo(SRunningBuild runningBuild){
 		spiraClient.verifyRelease (spiraProjectVers);
 	} catch (Exception e) {
 		
+		Loggers.SERVER.error(e);
 		e.printStackTrace();
 	}
 	
 	try {
 		spiraClient.recordBuild(spiraProjectVers,date,buildStatus,name,description,revisions,incidentIds);
 	} catch (Exception e) {
+		Loggers.SERVER.error(e);
 		e.printStackTrace();
 	}
+	Loggers.SERVER.info("SpiraTeam Plugin :: Exiting setSendInfo");
 }
 
   
@@ -207,7 +247,7 @@ public String getNotificatorType() {
 // This method is called by TeamCity if a Build fails
 public void notifyBuildFailed(SRunningBuild runningBuild, Set<SUser> userInfo) {
 	
-	Loggers.SERVER.info(":: SpiraTeam Plugin :: Build Failed Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("SpiraTeam Plugin :: Build Failed Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	TcProjectID = runningBuild.getProjectId();
 	buildStatus = 1; // Failed Status
 	
@@ -215,10 +255,10 @@ public void notifyBuildFailed(SRunningBuild runningBuild, Set<SUser> userInfo) {
 		try {
 			getInfo(user);
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		}
 	}
@@ -228,17 +268,17 @@ public void notifyBuildFailed(SRunningBuild runningBuild, Set<SUser> userInfo) {
 @Override
 //This method is called by TeamCity if a Build couldn't start 
 public void notifyBuildFailedToStart(SRunningBuild runningBuild, Set<SUser> userInfo) {
-	Loggers.SERVER.info(":: SpiraTeam Plugin :: Build Failed to Start (Aborted) Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("SpiraTeam Plugin :: Build Failed to Start (Aborted) Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	buildStatus = 4; //Aborted
 	
 	for (SUser user : userInfo) {
 		try {
 			getInfo(user);
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		}
 	}
@@ -248,17 +288,17 @@ public void notifyBuildFailedToStart(SRunningBuild runningBuild, Set<SUser> user
 @Override
 //This method is called by TeamCity if a Build is unstable 
 public void notifyBuildProbablyHanging(SRunningBuild runningBuild, Set<SUser> userInfo) {
-	Loggers.SERVER.info(":: SpiraTeam Plugin :: Build Hanging (Unstable) Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("SpiraTeam Plugin :: Build Hanging (Unstable) Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	buildStatus = 3; // Unstable
 	
 	for (SUser user : userInfo) {
 		try {
 			getInfo(user);
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		}
 	}
@@ -269,7 +309,7 @@ public void notifyBuildProbablyHanging(SRunningBuild runningBuild, Set<SUser> us
 //This method is called by TeamCity if a Build was finished successfully 
 public void notifyBuildSuccessful(SRunningBuild runningBuild, Set<SUser> userInfo) {
 	
-	Loggers.SERVER.info(":: SpiraTeam Plugin :: Build Sucessfull Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("SpiraTeam Plugin :: Build Successful Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	TcProjectID = runningBuild.getProjectId();
 	buildStatus = 2; //Success
 	
@@ -277,10 +317,10 @@ public void notifyBuildSuccessful(SRunningBuild runningBuild, Set<SUser> userInf
 		try {
 			getInfo(user);
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Loggers.SERVER.error(e);
 			e.printStackTrace();
 		}
 	}

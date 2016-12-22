@@ -25,21 +25,21 @@
 		<td><label for="txtSpiraUrl">SpiraTeam URL:</label>
 		</td>
 		<td>
-			<input type="text" name="txtSpiraUrl" placeholder="E.g.: http://doc/spirateam" maxlength="30"  value="${spiraUrl}" />
+			<input type="text" name="txtSpiraUrl" placeholder="E.g.: http://doc/spirateam" maxlength="255"  value="${spiraUrl}" />
 		</td>
 	</tr>
 	<tr>
 		<td><label for="txtUsername">User Name:</label>
 		</td>
 		<td>
-			<input type="text" name="txtUsername" placeholder="SpiraTest User Name" maxlength="30" value="${spiraUsername}" />
+			<input type="text" name="txtUsername" placeholder="SpiraTest User Name" maxlength="50" value="${spiraUsername}" />
 		</td>
 	</tr>
 	<tr>
 		<td><label for="txtPassword">Password:</label>
 		</td>
 		<td>
-			<input type="password" name="txtPassword" placeholder="SpiraTest Password" maxlength="30"  value="${spiraPassword}" />
+			<input type="password" name="txtPassword" placeholder="SpiraTest Password" maxlength="128"  value="${spiraPassword}" />
 		</td>
 	</tr>
 	<tr>

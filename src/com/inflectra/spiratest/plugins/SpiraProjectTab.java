@@ -61,7 +61,8 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
 	  ArrayList<String> ProjectList = new ArrayList<String>();
 	  
       try{
-	  FileReader reader = new FileReader(path); 
+  	    Loggers.SERVER.info(":: SpiraTeam Plugin :: Opening up settings file: " + path);
+    	FileReader reader = new FileReader(path); 
 	  BufferedReader reading = new BufferedReader(reader);  
 	  StringTokenizer st = null;
 	  while ((line = reading.readLine()) != null) {  
@@ -69,6 +70,7 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
 	        String data = null;  
 	       while (st.hasMoreTokens()) {  
 	         data = st.nextToken();  
+	   	     Loggers.SERVER.info(":: SpiraTeam Plugin :: found project entry: " + data);
 	         ProjectList.add(data);
 	          }  
 	       }  
@@ -76,6 +78,7 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
 	    reader.close();
       }catch (IOException e) {
 		  flag = 1;
+  	    Loggers.SERVER.error(":: SpiraTeam Plugin :: Opening up settings file: " + e.getMessage());
 		  ProjectList = null;
 		}
       return ProjectList;
@@ -84,7 +87,7 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
   protected void getFile (String path, String TcProjectID) throws IOException{
 	    ArrayList<String> ProjectList = CreateProjectList(path);
 	    if (flag ==1){
-	    Loggers.SERVER.info(":: SpiraTeam Plugin :: Project information could not be loaded from file. Action: Project fields set to 0");
+	    Loggers.SERVER.warn(":: SpiraTeam Plugin :: Project information could not be loaded from file. Action: Project fields set to 0");
 	    gotProjectID = 0;
 	    gotRelease = "0.0.0";	
 	    }
@@ -93,16 +96,18 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
 	 	     String piece = ProjectList.get(n);
 	             if (piece.equals(TcProjectID)) {
 	            	 try {
+	            		 String projectEntry = ProjectList.get(n+1);
+	        	   	     Loggers.SERVER.info(":: SpiraTeam Plugin :: found project ID: " + projectEntry);
 	            		 gotProjectID = Integer.parseInt(ProjectList.get(n+1));
 	            		} catch (NumberFormatException e) {
-	            			Loggers.SERVER.info(":: SpiraTeam Plugin :: Bad projectID format from file. Action: projectID changed to 0");
+	            			Loggers.SERVER.warn(":: SpiraTeam Plugin :: Bad projectID format from file. Action: projectID changed to 0");
 	            			gotProjectID = 0;
 	            			e.printStackTrace();	
 	            		}	
 	            	 gotRelease = ProjectList.get(n+2);
 	            	 break; 	
 	             }            
-	             Loggers.SERVER.info(":: SpiraTeam Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
+	             Loggers.SERVER.warn(":: SpiraTeam Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
 	             gotProjectID = 0;
 	             gotRelease = "0.0.0";
 	         }
