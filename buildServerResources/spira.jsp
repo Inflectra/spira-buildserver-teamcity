@@ -9,6 +9,8 @@
 <jsp:useBean id="releaseVersionNumber" scope="request" type="java.lang.String" />
 <jsp:useBean id="spiraUrl" scope="request" type="java.lang.String" />
 <jsp:useBean id="tcProject" scope="request" type="java.lang.String" />
+<jsp:useBean id="csrfName" scope="request" type="java.lang.String" />
+<jsp:useBean id="csrfValue" scope="request" type="java.lang.String" />
 
 <h2>Spira Configuration</h2>
 <form action="${controllerUrl}" id="spiraProjectForm" method="post" onsubmit="return verifySpira()">
@@ -64,6 +66,7 @@
 		<td>
 		</td>
 		<td>
+		    <input type="hidden" name="${csrfName}" value="${csrfValue}" />
 			<input type="submit" name="btnVerify" value="Save" />
 		</td>
 	</tr>

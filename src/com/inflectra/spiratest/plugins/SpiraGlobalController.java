@@ -67,7 +67,7 @@ public class SpiraGlobalController extends BaseFormXmlController {
         
         spiraClient.setUrl(SpiraUrlString);
     	spiraClient.setUserName(SpiraUserString);
-    	spiraClient.setPassword(SpiraPasswordString);
+    	spiraClient.setApiKey(SpiraPasswordString);
 
         try {       	
         	if (t!= null){
@@ -93,7 +93,7 @@ public class SpiraGlobalController extends BaseFormXmlController {
         	}
     	
 		} catch (IOException e) {
-			String returnUrl = request.getHeader("referer") + "&action=badconnection";
+			String returnUrl = request.getHeader("referer") + "&action=badIO";
 			try {
 				response.sendRedirect(returnUrl);
 			} catch (IOException e1) {
@@ -103,7 +103,7 @@ public class SpiraGlobalController extends BaseFormXmlController {
 		}
         
           catch (Exception e) {
-        	  String returnUrl = request.getHeader("referer") + "&action=badconnection";
+        	  String returnUrl = request.getHeader("referer") + "&action=errorconnecting&message=" + e.getMessage();
         	  try {
 				response.sendRedirect(returnUrl);
 			} catch (IOException e1) {

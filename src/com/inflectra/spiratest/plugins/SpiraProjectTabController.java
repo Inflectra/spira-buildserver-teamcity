@@ -166,7 +166,7 @@ public class SpiraProjectTabController extends BaseFormXmlController {
         	fromFile(GLOBAL_CONFIG_PATH); 
         	spiraClient.setUrl(gotURL);
         	spiraClient.setUserName(gotUserName);
-        	spiraClient.setPassword(gotPassword);
+        	spiraClient.setApiKey(gotPassword);
         	spiraClient.setProjectId(projectID);
         	
         	//First, test url/login/password

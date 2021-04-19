@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.ProjectManager;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.serverSide.SProject;
 import jetbrains.buildServer.users.SUser;
+import jetbrains.buildServer.web.CSRFFilter;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
 
@@ -179,7 +181,13 @@ public class SpiraProjectTab extends jetbrains.buildServer.web.openapi.project.P
 	map.put("spiraUrl", spiraUrl);
     map.put("projectId", projectId);
     map.put("releaseVersionNumber", releaseVersionNumber);
-    map.put("tcProject",sProject.getProjectId());  
+    map.put("tcProject",sProject.getProjectId());
+
+	  //CSRF Token
+	  HttpSession session = httpServletRequest.getSession();
+	  String csrfToken = (String) session.getAttribute(CSRFFilter.ATTRIBUTE);
+	  map.put("csrfName", CSRFFilter.ATTRIBUTE);
+	  map.put("csrfValue", csrfToken);
   }
  
 }

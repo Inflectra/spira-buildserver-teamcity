@@ -181,7 +181,7 @@ public void setSendInfo(SRunningBuild runningBuild){
 	
 	spiraClient.setUrl(spiraURL);	
 	spiraClient.setUserName(spiraUsername);
-	spiraClient.setPassword(spiraPassword);
+	spiraClient.setApiKey(spiraPassword);
 	
 	Loggers.SERVER.info("SpiraTeam Plugin :: Sending Notification to Spira at URL: " + spiraURL);
 
@@ -200,8 +200,8 @@ public void setSendInfo(SRunningBuild runningBuild){
 	StringBuilder sb = new StringBuilder();
 	
 	for (LogMessage message : messages){
-		sb.append(message.toString() + "<br/>");
-		//System.getProperty("line.separator"));
+		sb.append(message.toString());
+		sb.append(System.getProperty("line.separator"));
 	}
 	
 	String description = sb.toString();

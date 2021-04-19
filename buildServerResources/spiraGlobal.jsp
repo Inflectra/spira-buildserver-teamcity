@@ -8,6 +8,8 @@
 <jsp:useBean id="spiraUrl" scope="request" type="java.lang.String" />
 <jsp:useBean id="spiraUsername" scope="request" type="java.lang.String" />
 <jsp:useBean id="spiraPassword" scope="request" type="java.lang.String" />
+<jsp:useBean id="csrfName" scope="request" type="java.lang.String" />
+<jsp:useBean id="csrfValue" scope="request" type="java.lang.String" />
 
 <h2>Spira Configuration</h2>
 <form action="${controllerUrl}" id="spiraGlobalForm" method="post" onsubmit="return verifySpira()">
@@ -20,32 +22,38 @@
 <div id="spiraBadIO" style="color: red; font-weight: bold; display: none">
 	Error importing/exporting data, please try again.
 </div>
+<div id="spiraErrorConnecting" style="color: red; font-weight: bold; display: none">
+	Error connecting to the Spira server, please check the TeamCity logs for more information!<br />
+	Message: <span id="spiraErrorMessage"></span>
+</div>
+
 <table>       
 	<tr>
-		<td><label for="txtSpiraUrl">SpiraTeam URL:</label>
+		<td><label for="txtSpiraUrl">Spira URL:</label>
 		</td>
 		<td>
-			<input type="text" name="txtSpiraUrl" placeholder="E.g.: http://doc/spirateam" maxlength="255"  value="${spiraUrl}" />
+			<input type="text" name="txtSpiraUrl" placeholder="https://mycompany.spiraservice.net" maxlength="255" value="${spiraUrl}" style="min-width:250px;" />
 		</td>
 	</tr>
 	<tr>
 		<td><label for="txtUsername">User Name:</label>
 		</td>
 		<td>
-			<input type="text" name="txtUsername" placeholder="SpiraTest User Name" maxlength="50" value="${spiraUsername}" />
+			<input type="text" name="txtUsername" placeholder="username" maxlength="50" value="${spiraUsername}" />
 		</td>
 	</tr>
 	<tr>
-		<td><label for="txtPassword">Password:</label>
+		<td><label for="txtPassword">API Key:</label>
 		</td>
 		<td>
-			<input type="password" name="txtPassword" placeholder="SpiraTest Password" maxlength="128"  value="${spiraPassword}" />
+			<input type="password" name="txtPassword" placeholder="" maxlength="128"  value="${spiraPassword}" />
 		</td>
 	</tr>
 	<tr>
 		<td>
 		</td>
 		<td>
+		    <input type="hidden" name="${csrfName}" value="${csrfValue}" />
 			<input type="submit" name="btnVerify" value="Save" />
 		</td>
 	</tr>
@@ -80,6 +88,12 @@ $j(document).ready(function(){
   	if(vars['action'] == 'badIO')
  	{
   		$j('#spiraBadIO').css('display', 'block');
+ 	}
+  	if(vars['action'] == 'errorconnecting')
+ 	{
+ 	    var message = vars['message'].replace(/%20/gi, ' ');
+  		$j('#spiraErrorConnecting').css('display', 'block');
+  		$j('#spiraErrorMessage').text(message);
  	}
 });
 </script>

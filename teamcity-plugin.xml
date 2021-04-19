@@ -5,7 +5,7 @@
     <name>SpiraTeam CI Integration</name>
     <display-name>SpiraTeam CI Integration 2020</display-name>
     <description>Continuous Integration tool for Inflectra SpiraTeam Products</description>
-    <version>4.2.1</version>
+    <version>6.0.0</version>
     <vendor>
       <name>Inflectra Corporation</name>
       <url>http://www.inflectra.com/</url>

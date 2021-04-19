@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="TeamCity Plugin" default="full">
-	<property name="java.bin" value="C:\Program Files\Java\jdk1.8.0_45\bin" />
+	<property name="java.bin" value="C:\Program Files\Java\jdk1.8.0_251\bin" />
 	<property name="jar.filename" value="spira-teamcity-plugin.jar" />
 	<property name="teamcity.plugins" value="C:\ProgramData\JetBrains\TeamCity\plugins" />
 	
@@ -11,7 +11,7 @@
 			<arg value="${nant.project.basedir}\${jar.filename}" />
 			<arg value="com\inflectra\spiratest\plugins\*.class" />
 			<arg value="com\inflectra\spiratest\plugins\teamcity\*.class" />
-			<arg value="com\inflectra\spiratest\plugins\soap\*.class" />
+			<arg value="com\inflectra\spiratest\plugins\model\*.class" />
 		</exec>
 		<exec program="${java.bin}\jar" verbose="true" workingdir="${nant.project.basedir}">
 			<arg value="ufv" />
@@ -29,19 +29,22 @@
 	
 	<target name="zipup" description="Zips up the plugin">
 		<echo message="Zipping up entire plugin" />
-		<zip zipfile="TeamCity-Spira-Plugin.zip" verbose="true" comment="TeamCity Plugin for SpiraTest">
+		<zip zipfile="SpiraTeam-CI-Integration.zip" verbose="true" comment="TeamCity Plugin for SpiraTest">
 			<fileset>
 				<include name="teamcity-plugin.xml" />
 			</fileset>
 			<fileset prefix="server">
 				<include name="${jar.filename}" />
 			</fileset>
+			<fileset prefix="server" basedir="lib">
+				<include name="*.jar" />
+			</fileset>
 		</zip>
 	</target>
 	
 	<target name="deploy" description="deploy to teamcity">
 		<echo message="deploy to teamcity" />
-		<copy file="TeamCity-Spira-Plugin.zip" tofile="${teamcity.plugins}\TeamCity-Spira-Plugin.zip" />
+		<copy file="SpiraTeam-CI-Integration.zip" tofile="${teamcity.plugins}\SpiraTeam-CI-Integration.zip" />
 		<exec program="net" verbose="true">
 			<arg value="stop" />
 			<arg value="TeamCity" />

@@ -50,12 +50,12 @@ public class Main {
 		SpiraImportExport spiraClient = new SpiraImportExport();
 		spiraClient.setUrl("http://doctor/spirateam");
 		spiraClient.setUserName("fredbloggs");
-		spiraClient.setPassword("PleaseChange");
+		spiraClient.setApiKey("PleaseChange");
 		spiraClient.testConnection();
 		spiraClient.setProjectId(1);
 		spiraClient.verifyRelease ("1.0.0.0");
 		/*spiraClient.recordTestRun(1,103,1,1,date,date,1,"Testing", "Testing Test Name",1, 
-				                  "Testing Acess from SOAP", "Test Stack Trace field");*/
+				                  "Testing Access from SOAP", "Test Stack Trace field");*/
 		
 		spiraClient.recordBuild("1.0.0.0", date, 2, "TestBuild", "Just testing", revisions, incidentIds);
 	}
