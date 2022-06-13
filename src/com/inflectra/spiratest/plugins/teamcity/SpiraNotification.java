@@ -3,12 +3,9 @@ package com.inflectra.spiratest.plugins.teamcity;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.inflectra.spiratest.plugins.SpiraImportExport;
 
@@ -17,16 +14,11 @@ import jetbrains.buildServer.notification.Notificator;
 import jetbrains.buildServer.notification.NotificatorRegistry;
 import jetbrains.buildServer.responsibility.ResponsibilityEntry;
 import jetbrains.buildServer.responsibility.TestNameResponsibilityEntry;
-import jetbrains.buildServer.serverSide.SBuildType;
-import jetbrains.buildServer.serverSide.SProject;
-import jetbrains.buildServer.serverSide.SRunningBuild;
-import jetbrains.buildServer.serverSide.STest;
-import jetbrains.buildServer.serverSide.UserPropertyInfo;
+import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.buildLog.LogMessage;
 import jetbrains.buildServer.serverSide.mute.MuteInfo;
 import jetbrains.buildServer.serverSide.problems.BuildProblemInfo;
 import jetbrains.buildServer.tests.TestName;
-import jetbrains.buildServer.users.NotificatorPropertyKey;
 import jetbrains.buildServer.users.SUser;
 import jetbrains.buildServer.vcs.SelectPrevBuildPolicy;
 import jetbrains.buildServer.vcs.VcsRoot;
@@ -51,6 +43,7 @@ private static final String TYPE_NAME = "Spira Notifier for TeamCity";
 private static final String SPIRA_URL = "SpriraURL";
 private static final String SPIRA_USERNAME = "SpriraUser";
 private static final String SPIRA_PASSWORD = "SpriraPassw";
+private static Pattern incidentPattern = Pattern.compile( "\\[IN:(\\d+)\\]" );
 
 static String Spira_dir = System.getenv("TEAMCITY_DATA_PATH"); 
 
@@ -70,7 +63,7 @@ public SpiraNotification(NotificatorRegistry notificatorRegistry) {
 //Takes a string from file and makes it a list 
 public ArrayList<String> CreateProjectList(String path){
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Entering CreateProjectList");
+	Loggers.SERVER.info("Spira Plugin :: Entering CreateProjectList");
 
 	  flag = 0; //watching for exceptions (usually file not found)
 	  String line = null;
@@ -101,7 +94,7 @@ public ArrayList<String> CreateProjectList(String path){
 // Gets all the necessary info that will be send in a Notification Event
 public void getInfo(SUser user) throws NumberFormatException, IOException {
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Entering getInfo for user: '" + user.getUsername() + "'");
+	Loggers.SERVER.info("Spira Plugin :: Entering getInfo for user: '" + user.getUsername() + "'");
 		
 	//Read the Spira global configuration from the file
 	String line = null; 
@@ -137,12 +130,12 @@ public void getInfo(SUser user) throws NumberFormatException, IOException {
 		
 	if (spiraURL != null && !spiraURL.isEmpty() && spiraUsername != null && !spiraUsername.isEmpty())
 	{
-		Loggers.SERVER.info("SpiraTeam Plugin :: got Spira URL = " + spiraURL + " configured for TeamCity user '" + user.getUsername() + "'");
+		Loggers.SERVER.info("Spira Plugin :: got Spira URL = " + spiraURL + " configured for TeamCity user '" + user.getUsername() + "'");
 		
 		ArrayList<String> ProjectList = CreateProjectList(LOCAL_CONFIG_PATH);
 	        
 	    if (flag ==1){
-		    Loggers.SERVER.warn(":: SpiraTeam Plugin :: Project information could not be loaded from file '" + LOCAL_CONFIG_PATH + "'. Action: Project fields set to 0");
+		    Loggers.SERVER.warn(":: Spira Plugin :: Project information could not be loaded from file '" + LOCAL_CONFIG_PATH + "'. Action: Project fields set to 0");
 		    ProjectID = 0;
 		    spiraProjectVers = "0.0.0";	
 		}
@@ -154,28 +147,28 @@ public void getInfo(SUser user) throws NumberFormatException, IOException {
 		            	 try {
 		            		 ProjectID = Integer.parseInt(ProjectList.get(n+1)); 
 		            	 }catch (NumberFormatException e){
-		            			Loggers.SERVER.error(":: SpiraTeam Plugin :: Bad projectID format from file. Action: projectID changed to 0");
+		            			Loggers.SERVER.error(":: Spira Plugin :: Bad projectID format from file. Action: projectID changed to 0");
 		            			ProjectID = 0;
 		            			e.printStackTrace();	
 		            	 }	
 		            	 spiraProjectVers = ProjectList.get(n+2);
 		            	 break; 	
 		             }            
-		             Loggers.SERVER.info(":: SpiraTeam Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
+		             Loggers.SERVER.info(":: Spira Plugin :: ProjectID not found from file. Action: projectID and Release # considered 0");
 		             ProjectID = 0;
 		             spiraProjectVers = "0.0.0";
 		    }
 		}
 	}
-	Loggers.SERVER.info("SpiraTeam Plugin :: Exiting getInfo");
+	Loggers.SERVER.info("Spira Plugin :: Exiting getInfo");
 }
 
-// Set connection with SpiraTeam Server and Send a notification
+// Set connection with Spira Server and Send a notification
 public void setSendInfo(SRunningBuild runningBuild){
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Entering setSendInfo");
+	Loggers.SERVER.info("Spira Plugin :: Entering setSendInfo");
 
-	List<Integer> incidentIds = new ArrayList<Integer>();
+	Set<Integer> incidentIds = new HashSet<Integer>();
 	List<String> revisions = new ArrayList<String>();
 	SpiraImportExport spiraClient = new SpiraImportExport();
 	
@@ -183,8 +176,7 @@ public void setSendInfo(SRunningBuild runningBuild){
 	spiraClient.setUserName(spiraUsername);
 	spiraClient.setApiKey(spiraPassword);
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Sending Notification to Spira at URL: " + spiraURL);
-
+	Loggers.SERVER.info("Spira Plugin :: Sending Notification to Spira at URL: " + spiraURL);
 	
 	Date date = runningBuild.getStartDate();
 	String name = runningBuild.getFullName() + " #" + runningBuild.getBuildNumber() ;
@@ -194,7 +186,16 @@ public void setSendInfo(SRunningBuild runningBuild){
 
 	for (SVcsModification modification : modifications){
 		String revision = modification.getVersion();
+		revision = revision.split("_" )[0];
+		Loggers.SERVER.info("Spira Plugin :: Adding revision " + revision + " from version " +
+				modification.getVersion() );
 		revisions.add(revision);
+		Matcher m  = incidentPattern.matcher( modification.getDescription() );
+		while( m.find() )
+		{
+			incidentIds.add( new Integer( m.group( 1 ) ) );
+			Loggers.SERVER.info("Spira Plugin :: Adding incident " + m.group() );
+		}
 	}
 	
 	StringBuilder sb = new StringBuilder();
@@ -224,12 +225,13 @@ public void setSendInfo(SRunningBuild runningBuild){
 	}
 	
 	try {
-		spiraClient.recordBuild(spiraProjectVers,date,buildStatus,name,description,revisions,incidentIds);
+		spiraClient.recordBuild(spiraProjectVers, date, buildStatus, name, description, revisions,
+				new ArrayList( incidentIds ) );
 	} catch (Exception e) {
 		Loggers.SERVER.error(e);
 		e.printStackTrace();
 	}
-	Loggers.SERVER.info("SpiraTeam Plugin :: Exiting setSendInfo");
+	Loggers.SERVER.info("Spira Plugin :: Exiting setSendInfo");
 }
 
   
@@ -247,7 +249,7 @@ public String getNotificatorType() {
 // This method is called by TeamCity if a Build fails
 public void notifyBuildFailed(SRunningBuild runningBuild, Set<SUser> userInfo) {
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Build Failed Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("Spira Plugin :: Build Failed Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	TcProjectID = runningBuild.getProjectId();
 	buildStatus = 1; // Failed Status
 	
@@ -268,7 +270,7 @@ public void notifyBuildFailed(SRunningBuild runningBuild, Set<SUser> userInfo) {
 @Override
 //This method is called by TeamCity if a Build couldn't start 
 public void notifyBuildFailedToStart(SRunningBuild runningBuild, Set<SUser> userInfo) {
-	Loggers.SERVER.info("SpiraTeam Plugin :: Build Failed to Start (Aborted) Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("Spira Plugin :: Build Failed to Start (Aborted) Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	buildStatus = 4; //Aborted
 	
 	for (SUser user : userInfo) {
@@ -288,7 +290,7 @@ public void notifyBuildFailedToStart(SRunningBuild runningBuild, Set<SUser> user
 @Override
 //This method is called by TeamCity if a Build is unstable 
 public void notifyBuildProbablyHanging(SRunningBuild runningBuild, Set<SUser> userInfo) {
-	Loggers.SERVER.info("SpiraTeam Plugin :: Build Hanging (Unstable) Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("Spira Plugin :: Build Hanging (Unstable) Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	buildStatus = 3; // Unstable
 	
 	for (SUser user : userInfo) {
@@ -309,7 +311,7 @@ public void notifyBuildProbablyHanging(SRunningBuild runningBuild, Set<SUser> us
 //This method is called by TeamCity if a Build was finished successfully 
 public void notifyBuildSuccessful(SRunningBuild runningBuild, Set<SUser> userInfo) {
 	
-	Loggers.SERVER.info("SpiraTeam Plugin :: Build Successful Notification Requested by TeamCity for "+runningBuild.getProjectId());
+	Loggers.SERVER.info("Spira Plugin :: Build Successful Notification Requested by TeamCity for "+runningBuild.getProjectId());
 	TcProjectID = runningBuild.getProjectId();
 	buildStatus = 2; //Success
 	
@@ -359,7 +361,13 @@ public void notifyBuildProblemsUnmuted(Collection<BuildProblemInfo> arg0,
 	
 }
 
-@Override
+	@Override
+	public void notifyQueuedBuildWaitingForApproval(SQueuedBuild sQueuedBuild, Set<SUser> set)
+	{
+
+	}
+
+	@Override
 public void notifyBuildStarted(SRunningBuild arg0, Set<SUser> arg1) {
 }
 

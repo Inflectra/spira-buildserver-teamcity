@@ -328,7 +328,7 @@ public class SpiraImportExport
 	 * @param releaseVersionNumber
 	 * @return The id of the release or null
 	 */
-	public Integer verifyRelease (String releaseVersionNumber) throws Exception
+	public Integer verifyRelease(String releaseVersionNumber) throws Exception
 	{
 		boolean success = false;
 		try
@@ -393,7 +393,8 @@ public class SpiraImportExport
 	 * @return
 	 * @throws Exception 
 	 */
-	public int recordBuild(String releaseVersionNumber, Date creationDate, int buildStatusId, String name, String description, List<String> revisions, List<Integer> incidents) throws Exception
+	public int recordBuild(String releaseVersionNumber, Date creationDate, int buildStatusId, String name,
+						   String description, List<String> revisions, List<Integer> incidents) throws Exception
 	{
 		try
 		{
