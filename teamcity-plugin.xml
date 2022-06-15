@@ -2,15 +2,15 @@
 <teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
   <info>
-    <name>SpiraTeam CI Integration</name>
-    <display-name>SpiraTeam CI Integration 2020</display-name>
-    <description>Continuous Integration tool for Inflectra SpiraTeam Products</description>
-    <version>6.0.0</version>
+    <name>Spira CI Integration</name>
+    <display-name>Spira CI Integration 2022</display-name>
+    <description>Continuous Integration tool for Inflectra Spira Products</description>
+    <version>6.16.0.0</version>
     <vendor>
       <name>Inflectra Corporation</name>
       <url>http://www.inflectra.com/</url>
     </vendor>
   </info>
-  <requirements min-build="78475"/> <!-- specify compatible TeamCity server builds -->
+  <requirements min-build="108575"/> <!-- specify compatible TeamCity server builds -->
   <deployment use-separate-classloader="true" /> <!-- load server plugin's classes in separate classloader-->
 </teamcity-plugin>
